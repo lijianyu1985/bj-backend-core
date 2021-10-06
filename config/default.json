@@ -1,0 +1,108 @@
+{
+  "type": "default",
+  "authConfig": {
+    "enabled": false,
+    "secretKey": "secretKey",
+    "signOptions": {
+      "expiresIn": 2592000
+    },
+    "cookieOptions": {
+      "ttl": 2592000,
+      "encoding": "none",
+      "isSecure": false,
+      "isHttpOnly": true,
+      "clearInvalid": false,
+      "strictHeader": true
+    }
+  },
+  "wxConfig":{
+    "appId":"wx0b5f8a7bb0149b4e",
+    "appSecret":"0a265fafa2ec7f93ff40ae385ede4fa0",
+    "appCode2SessionUrl":"https://api.weixin.qq.com/sns/jscode2session",
+    "mchId":"1305638280",
+    "partnerKey":"78965412789654127896541278965412"
+  },
+  "connectConfig": {
+    "host": "0.0.0.0",
+    "port": 12000,
+    "routes": {
+      "cors": {
+        "origin": ["*"],
+        "credentials": true,
+        "additionalHeaders": ["Cache-Control", "X-Requested-With"]
+      }
+    },
+    "router": {
+      "isCaseSensitive": false,
+      "stripTrailingSlash": false
+    }
+  },
+  "mongoConfig": {
+    "connections": [
+      {
+        "alias": "bj-core",
+        "uri": "mongodb://localhost:27217/bj-core",
+        "loadSchemasFrom": [
+          "src/schemas",
+          "!.{md,json}"
+        ],
+        "options": {
+          "autoIndex": true,
+          "bufferCommands": true,
+          "useNewUrlParser": true,
+          "autoCreate": true
+        }
+      }
+    ],
+    "decorations": [
+      "request"
+    ]
+  },
+  "goodConfig": {
+    "ops": {
+      "interval": 1000
+    },
+    "reporters": {
+      "myConsoleReporter": [
+        {
+          "module": "@hapi/good-squeeze",
+          "name": "Squeeze",
+          "args": [
+            {
+              "log": "*",
+              "response": "*"
+            }
+          ]
+        },
+        {
+          "module": "@hapi/good-console"
+        },
+        "stdout"
+      ],
+      "file": [
+        {
+          "module": "@hapi/good-squeeze",
+          "name": "Squeeze",
+          "args": [
+            {
+              "log": "*",
+              "request": "*",
+              "response": "*"
+            }
+          ]
+        },
+        {
+          "module": "@hapi/good-squeeze",
+          "name": "SafeJson",
+          "args": [
+            null,
+            {
+              "separator": ","
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "swaggerSchemes": "http"
+}

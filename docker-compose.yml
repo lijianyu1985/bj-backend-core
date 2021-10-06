@@ -1,0 +1,77 @@
+version: '3.2'
+
+services:
+  mongo:
+    image: mongo:4.0.5-xenial
+    container_name: bj_mongo
+    networks:
+      backend:
+        aliases:
+          - bj_mongo
+    volumes:
+      - target: /data/db
+        type: volume
+        source: mongo_data
+    ports:
+      - 27217:27017
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: A@a123456
+    command: [--auth]
+  mongo_express:
+    image: mongo-express
+    container_name: bj_mongo_express
+    networks:
+      backend:
+        aliases:
+          - bj_mongo_express
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - 8281:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: bj_mongo
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: A@a123456
+      ME_CONFIG_MONGODB_AUTH_DATABASE : admin
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: A@a123456
+  backend:
+    image: bj_backend
+    container_name: bj_backend
+    networks:
+      backend:
+        aliases:
+          - bj_backend
+    restart: always
+    ports:
+      - 7171:80
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    environment:
+      TZ: Asia/Shanghai
+      NODE_ENV: production
+    volumes:
+      - target: /usr/src/app/public
+        type: volume
+        source: instance_public
+
+volumes:
+  instance_public:
+    driver: local #for windows: device: c/bj/data/public; for linux device: /var/lib/bj/data/public
+    driver_opts: 
+      o: bind
+      type: none
+      device: c:/bj/data/public #for windows: device: c/bj/data/public; for linux device: /var/lib/bj/data/public
+  mongo_data:
+    driver: local
+    driver_opts: 
+      o: bind
+      type: none
+      device: c:/bj/data/mongo
+networks:
+  backend:
+      
