@@ -51,6 +51,9 @@ async function updateByQuery(Model, query, update, opts = {new:true}) {
 async function updateById(Model, id, update, opts = {new:true}) {
     return await Model.findByIdAndUpdate(id, update, opts);
 }
+async function toggleArchive(Model, ids, archived, opts = {new:true}) {
+    return await Model.updateMany({_id: {$in: ids}}, {archived}, opts);
+}
 
 export default {
     all,
@@ -63,5 +66,6 @@ export default {
     unarchive,
     insert,
     updateByQuery,
-    updateById
+    updateById,
+    toggleArchive
 };

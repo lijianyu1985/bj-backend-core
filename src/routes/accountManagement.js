@@ -30,7 +30,7 @@ export default [
         handler: handlers.verifyToken,
         config: {
             description: 'Verify',
-            tags: ['api','admin'],
+            tags: ['api', 'admin'],
             auth: false,
             validate: {
                 payload: Joi.object().keys({
@@ -123,6 +123,52 @@ export default [
                 payload: Joi.object().keys({
                     ids: Joi.array().items(jois.CommonJoi.id)
                 }).label('UnarchiveModel')
+            }
+        }
+    },
+    {
+        method: 'POST',
+        path: '/AccountManagement/Create',
+        handler: handlers.create,
+        config: {
+            description: '创建新的Account',
+            tags: ['api', 'admin'],
+            validate: {
+                payload: {
+                    username: Joi.string().alphanum().required().trim(),
+                    name: Joi.string().allow('').allow(null),
+                    roles: Joi.array().items(Joi.string())
+                }
+            }
+        }
+    },
+    {
+        method: 'POST',
+        path: '/AccountManagement/Change',
+        handler: handlers.change,
+        config: {
+            description: '修改Account',
+            tags: ['api', 'admin'],
+            validate: {
+                payload: {
+                    name: Joi.string().allow('').allow(null),
+                    roles: Joi.array().items(Joi.string()),
+                    id: jois.CommonJoi.id
+                }
+            }
+        }
+    },
+    {
+        method: 'GET',
+        path: '/AccountManagement/Get',
+        handler: handlers.get,
+        config: {
+            description: '查询Account',
+            tags: ['api', 'admin'],
+            validate: {
+                query: {
+                    id: jois.CommonJoi.id
+                }
             }
         }
     }

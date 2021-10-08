@@ -18,6 +18,30 @@ export default [
         }
     },
     {
+        method: 'GET',
+        path: '/AccountProfile/Get',
+        handler: handlers.get,
+        config: {
+            description: '个人信息',
+            tags: ['api', 'admin']
+        }
+    },
+    {
+        method: 'POST',
+        path: '/AccountProfile/Change',
+        handler: handlers.changeProfile,
+        config: {
+            description: '修改个人信息',
+            tags: ['api', 'admin'],
+            validate: {
+                payload: Joi.object().keys({
+                    name: Joi.string().allow('').allow(null),
+                    phone: Joi.string().allow('').allow(null)
+                }).label('changeProfile')
+            }
+        }
+    },
+    {
         method: 'POST',
         path: '/AccountProfile/ChangePassword',
         handler: handlers.changePassword,

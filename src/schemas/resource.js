@@ -8,7 +8,13 @@ const Resource = new Schema({
     name: {
         type: Schema.Types.String
     },
-    descriptin: {
+    type: {//api,admin,web,mobile,xiaochengxu,app
+        type: Schema.Types.String
+    },
+    data: {
+        type: Schema.Types.String
+    },
+    description: {
         type: Schema.Types.String
     },
     archived: {

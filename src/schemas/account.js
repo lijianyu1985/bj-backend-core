@@ -6,10 +6,13 @@ const Account = new Schema({
         type: Schema.Types.String
     },
     roles: [Schema.Types.String],
-    password: {
+    hashedPassword: {
         type: Schema.Types.String
     },
     name: {
+        type: Schema.Types.String
+    },
+    phone: {
         type: Schema.Types.String
     },
     fingerPrint: {
