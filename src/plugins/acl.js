@@ -1,6 +1,7 @@
 import Boom from '@hapi/boom';
 import lodash from 'lodash';
 import Config from 'getconfig';
+import commonService from '../services/common';
 
 
 exports.plugin = {
@@ -26,7 +27,7 @@ exports.plugin = {
                     }
                     //需要缓存？
                     const roles = await request.mongo.models.Role.find({
-                        age: {
+                        name: {
                             $in: request.auth.credentials.roles
                         }
                     });
@@ -40,8 +41,18 @@ exports.plugin = {
                     if (request.query && request.query.modelName && fingerprint.indexOf('common/') === 0) {
                         fingerprint = fingerprint.replace('common/', request.query.modelName.toLowerCase() + '/');
                     }
-                    const resources = lodash.map(lodash.uniq(lodash.reduce(roles, (res, item) => res.concat(item.resources), [])), (x) => lodash.trim(x, '/').toLowerCase());
-                    if (resources.indexOf(fingerprint) < 0) {
+
+                    const resourceIds = lodash.uniq(lodash.reduce(roles, (res, item) => res.concat(item.resources), []));
+
+                    const resources = (await commonService.find(request.mongo.models.Resource, {
+                        _id: {
+                            $in: resourceIds
+                        },
+                        type: 'API'
+                    }, 'path'));
+
+                    const resourcePathes = lodash.map(resources, (x) => lodash.trim(x.path, '/').toLowerCase());
+                    if (resourcePathes.indexOf(fingerprint) < 0) {
                         throw Boom.forbidden('Access Deny!', {
                             credentials: request.auth.credentials
                         });

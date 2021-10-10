@@ -6,6 +6,7 @@ import {
     decodeToken,
     verifyToken as verifyTokenUtil
 } from '../utils/auth/auth';
+import lodash from 'lodash';
 
 async function currentUser(request, h) {
     const id = request.auth && request.auth.credentials && request.auth.credentials.id;
@@ -50,11 +51,28 @@ async function signin(request, h) {
             error: errors.account.passwordNotMatch
         };
     } */
+
+    const roles = (await commonService.find(request.mongo.models.Role, {
+        name: {
+            $in: account.roles
+        }
+    }, 'resources'));
+    const resourceIds = lodash.uniq(lodash.reduce(roles, (res, item) => res.concat(item.resources), []));
+    console.log(resourceIds)
+    console.log(roles)
+    const resources = (await commonService.find(request.mongo.models.Resource, {
+        _id: {
+            $in: resourceIds
+        },
+        type: 'Admin'
+    }, 'path'));
+
+    console.log(resources)
     const token = await signJwt(account);
     return {
         success: true,
         token,
-        currentAuthority: account.roles
+        currentAuthority: lodash.map(resources, (x) => lodash.trim(x.path, '/').toLowerCase())
     };
 }
 
@@ -143,7 +161,7 @@ async function defaultPassword(request, h) {
         id
     } = request.payload;
     await commonService.updateById(request.mongo.models.Account, id, {
-        hashedPassword: crypto.createHash('md5').update('12345678').digest('hex')
+        hashedPassword: crypto.createHash('md5').update('Li@12345678').digest('hex')
     });
     const updateAccount = await commonService.updateById(request.mongo.models.Account, id, {
         $inc: {
@@ -235,9 +253,9 @@ async function unarchive(request, h) {
 async function create(request, h) {
     const {
         username,
-        password = '12345678',
+        password = 'Li@12345678',
         roles = ['admin'],
-        name
+        name = ['name']
     } = request.payload;
     const account = await commonService.getByQuery(request.mongo.models.Account, {
         username
@@ -260,8 +278,15 @@ async function create(request, h) {
 }
 
 async function change(request, h) {
-    const {id, name, roles} = request.payload;
-    const account = await commonService.updateById(request.mongo.models.Account, id, {name, roles});
+    const {
+        id,
+        name,
+        roles
+    } = request.payload;
+    const account = await commonService.updateById(request.mongo.models.Account, id, {
+        name,
+        roles
+    });
     return {
         success: true,
         data: account
@@ -270,8 +295,14 @@ async function change(request, h) {
 
 async function changeProfile(request, h) {
     const accountId = request.auth && request.auth.credentials && request.auth.credentials.id;
-    const {phone, name} = request.payload;
-    const account = await commonService.updateById(request.mongo.models.Account, accountId, {name, phone});
+    const {
+        phone,
+        name
+    } = request.payload;
+    const account = await commonService.updateById(request.mongo.models.Account, accountId, {
+        name,
+        phone
+    });
     return {
         success: true,
         data: account
@@ -279,6 +310,17 @@ async function changeProfile(request, h) {
 }
 
 async function get(request, h) {
+    const {
+        id
+    } = request.query;
+    const account = await commonService.getById(request.mongo.models.Account, id);
+    return {
+        success: true,
+        data: account
+    };
+}
+
+async function getProfile(request, h) {
     const id = request.auth && request.auth.credentials && request.auth.credentials.id;
     const account = await commonService.getById(request.mongo.models.Account, id);
     return {
@@ -301,5 +343,6 @@ export default {
     create,
     change,
     changeProfile,
-    get
+    get,
+    getProfile
 };

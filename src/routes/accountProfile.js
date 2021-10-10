@@ -20,7 +20,7 @@ export default [
     {
         method: 'GET',
         path: '/AccountProfile/Get',
-        handler: handlers.get,
+        handler: handlers.getProfile,
         config: {
             description: '个人信息',
             tags: ['api', 'admin']
